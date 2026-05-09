@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local runtime data
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Local standard/source documents and private spreadsheets
+认证标准/
+中文标准/
+*.pdf
+*.docx
+*.xls
+*.xlsx
+!requirements.txt
+
+# Streamlit local config/secrets
+.streamlit/secrets.toml
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
