@@ -13,9 +13,20 @@ from search_utils import normalize_standard_no, normalize_text
 
 CLAUSE_FILE_PREFIX = "UL_FM"
 CLAUSE_FILE_HINT = "分级"
+BASE_DIR = Path(__file__).resolve().parent
+ASSETS_DIR = BASE_DIR / "assets"
 
 
 def locate_clause_table_file() -> Path | None:
+    bundled_candidates = [
+        path
+        for path in ASSETS_DIR.glob("*.xlsx")
+        if path.name.startswith(CLAUSE_FILE_PREFIX) and CLAUSE_FILE_HINT in path.name
+    ]
+    if bundled_candidates:
+        bundled_candidates.sort(key=lambda path: ("完整版" not in path.name, path.name))
+        return bundled_candidates[0]
+
     desktop = Path.home() / "Desktop"
     if not desktop.exists():
         return None
@@ -120,7 +131,8 @@ def index_clause_table(path: Path | None = None, force: bool = False) -> dict[st
             return {"indexed": False, "reason": "索引已是最新", "rows": int(meta["row_count"] or 0)}
 
         rows = _read_clause_rows(path)
-        conn.execute("DELETE FROM clause_table_rows WHERE source_path = ?", (source_path,))
+        conn.execute("DELETE FROM clause_table_rows")
+        conn.execute("DELETE FROM clause_table_meta")
         conn.executemany(
             """
             INSERT INTO clause_table_rows

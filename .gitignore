@@ -20,6 +20,8 @@ data/
 *.xls
 *.xlsx
 !requirements.txt
+!assets/
+!assets/UL_FM消防标准分级条款表_完整版.xlsx
 
 # Streamlit local config/secrets
 .streamlit/secrets.toml
