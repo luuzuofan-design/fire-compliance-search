@@ -150,6 +150,34 @@ def render_clause_table_results(rows: list[dict], title: str = "UL/FM 分级条�
                     st.dataframe(level_table, use_container_width=True, hide_index=True)
 
 
+def render_full_clause_table() -> None:
+    rows = fetch_dataframe(
+        """
+        SELECT standard_file, original_pdf, level1, level2, level3, content, row_no
+        FROM clause_table_rows
+        ORDER BY standard_file, row_no
+        """
+    )
+    if not rows:
+        st.warning("UL/FM 分级条款表完整版尚未索引。请到“文件检索”页面点击“重新索引 UL/FM 分级条款表”。")
+        return
+
+    table = pd.DataFrame([dict(row) for row in rows]).rename(
+        columns={
+            "standard_file": "标准文件",
+            "original_pdf": "原PDF文件",
+            "level1": "一级标题",
+            "level2": "二级标题",
+            "level3": "三级标题",
+            "content": "内容",
+            "row_no": "原表行号",
+        }
+    )
+    st.subheader("UL/FM 分级条款表完整版")
+    st.caption(f"共 {len(table)} 行，来自本地已索引的《UL_FM消防标准分级条款表_完整版.xlsx》。")
+    st.dataframe(table, use_container_width=True, hide_index=True, height=420)
+
+
 def render_detail(row: dict) -> None:
     with st.expander(f"查看详情：{safe_text(row.get('test_item_cn'))} / {safe_text(row.get('test_item_en'))}"):
         col1, col2 = st.columns(2)
@@ -214,6 +242,9 @@ def page_search() -> None:
 
     rows = search_requirements(query, product_category, standard_no, requirement_category)
     st.divider()
+    render_full_clause_table()
+    st.divider()
+
     clause_rows = search_clause_table(query, limit=30) if query.strip() else []
     if clause_rows:
         render_clause_table_results(clause_rows)
